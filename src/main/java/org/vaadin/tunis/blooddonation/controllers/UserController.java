@@ -67,6 +67,10 @@ public class UserController {
 
 	}
 
+	public User addUser(User newUser) {
+		return userRepository.save(newUser);
+	}
+
 	public void addUserF() {
 		User user = new User();
 		user.setAddress("lorem epsum");

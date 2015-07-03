@@ -14,10 +14,10 @@ import com.vaadin.ui.HorizontalLayout;
  * 
  * 
  */
-public class MainScreen extends HorizontalLayout {
+public class MainContainer extends HorizontalLayout {
 	private Menu menu;
 
-	public MainScreen(Navigator navigator, CssLayout viewContainer) {
+	public MainContainer(Navigator navigator, CssLayout viewContainer) {
 
 		setStyleName("main-screen");
 

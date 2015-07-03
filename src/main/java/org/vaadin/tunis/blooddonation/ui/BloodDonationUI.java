@@ -1,10 +1,9 @@
 package org.vaadin.tunis.blooddonation.ui;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.tunis.blooddonation.ui.authentication.AccessControl;
-import org.vaadin.tunis.blooddonation.ui.authentication.BasicAccessControl;
-import org.vaadin.tunis.blooddonation.ui.authentication.LoginScreen;
-import org.vaadin.tunis.blooddonation.ui.authentication.LoginScreen.LoginListener;
+import org.vaadin.tunis.blooddonation.controllers.authentication.AccessControl;
+import org.vaadin.tunis.blooddonation.ui.authentication.LoginView;
+import org.vaadin.tunis.blooddonation.ui.dashboard.DashboardView;
 import org.vaadin.tunis.blooddonation.ui.error.ErrorView;
 
 import com.vaadin.annotations.Theme;
@@ -27,7 +26,8 @@ public class BloodDonationUI extends UI {
 	// we can use either constructor autowiring or field autowiring
 	@Autowired
 	private SpringViewProvider viewProvider;
-	private AccessControl accessControl = new BasicAccessControl();
+	@Autowired
+	private AccessControl accessControl;
 
 	CssLayout viewContainer;
 
@@ -46,17 +46,18 @@ public class BloodDonationUI extends UI {
 		setLocale(vaadinRequest.getLocale());
 		getPage().setTitle("My");
 		if (!accessControl.isUserSignedIn()) {
-			getNavigator().navigateTo(LoginScreen.VIEW_NAME);
+			getNavigator().navigateTo(LoginView.VIEW_NAME);
 			setContent(viewContainer);
 		} else {
 			showMainView();
 		}
 	}
 
-	protected void showMainView() {
+	public void showMainView() {
+		viewContainer.removeAllComponents();
 		addStyleName(ValoTheme.UI_WITH_MENU);
-		setContent(new MainScreen(getNavigator(), viewContainer));
-		getNavigator().navigateTo(getNavigator().getState());
+		setContent(new MainContainer(getNavigator(), viewContainer));
+		getNavigator().navigateTo(DashboardView.VIEW_NAME);
 	}
 
 	private Button createNavigationButton(String caption, final String viewName) {

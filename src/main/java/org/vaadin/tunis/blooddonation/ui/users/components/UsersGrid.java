@@ -1,6 +1,8 @@
 package org.vaadin.tunis.blooddonation.ui.users.components;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Locale;
 
 import org.vaadin.tunis.blooddonation.persistence.nodes.BloodType;
@@ -8,11 +10,13 @@ import org.vaadin.tunis.blooddonation.persistence.nodes.Gender;
 import org.vaadin.tunis.blooddonation.persistence.nodes.User;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.converter.StringToDateConverter;
 import com.vaadin.data.util.converter.StringToEnumConverter;
 import com.vaadin.data.util.filter.Or;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.renderers.DateRenderer;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 public class UsersGrid extends Grid {
@@ -24,18 +28,36 @@ public class UsersGrid extends Grid {
 
 		BeanItemContainer<User> container = new BeanItemContainer<User>(
 				User.class);
+		container.removeContainerProperty("password");
+		container.removeContainerProperty("id");
 		setContainerDataSource(container);
 
-		setColumnOrder("id", "fullName", "bloodType", "gender", "email",
-				"telephone", "address");
-
+		setColumnOrder("fullName", "bloodType", "gender", "email", "telephone",
+				"address");
 		getColumn("bloodType").setConverter(bloodTypeConverter).setRenderer(
 				new HtmlRenderer());
 
 		getColumn("gender").setConverter(genderTypeConverter).setRenderer(
 				new HtmlRenderer());
 
+		getColumn("birthDate").setRenderer(
+				new DateRenderer(new SimpleDateFormat("dd/MM/yyyy")));
+
 	}
+
+	//
+	// private StringToDateConverter birthdateConverter = new
+	// StringToDateConverter() {
+	// @Override
+	// public String convertToPresentation(Date value,
+	// Class<? extends String> targetType, Locale locale)
+	// throws com.vaadin.data.util.converter.Converter.ConversionException {
+	// String text = super
+	// .convertToPresentation(value, targetType, locale);
+	//
+	// return "";
+	// }
+	// };
 
 	private StringToEnumConverter genderTypeConverter = new StringToEnumConverter() {
 		@Override

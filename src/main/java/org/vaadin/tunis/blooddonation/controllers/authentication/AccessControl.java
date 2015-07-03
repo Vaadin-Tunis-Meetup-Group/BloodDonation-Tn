@@ -1,4 +1,4 @@
-package org.vaadin.tunis.blooddonation.ui.authentication;
+package org.vaadin.tunis.blooddonation.controllers.authentication;
 
 /**
  * Simple interface for authentication and authorization checks.

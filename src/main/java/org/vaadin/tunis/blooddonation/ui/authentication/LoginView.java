@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.tunis.blooddonation.controllers.authentication.AccessControl;
+import org.vaadin.tunis.blooddonation.ui.BloodDonationUI;
 import org.vaadin.tunis.blooddonation.ui.registration.SignUpView;
 
 import com.vaadin.event.ShortcutAction;
@@ -24,8 +27,8 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
-@SpringView(name = LoginScreen.VIEW_NAME)
-public class LoginScreen extends CssLayout implements View {
+@SpringView(name = LoginView.VIEW_NAME)
+public class LoginView extends CssLayout implements View {
 	public static final String VIEW_NAME = "Login";
 
 	private TextField username;
@@ -33,19 +36,20 @@ public class LoginScreen extends CssLayout implements View {
 	private Button login;
 	private Button forgotPassword;
 	private Button signUp;
-	
-//	private LoginListener loginListener;
-//	private AccessControl accessControl;
 
-	public LoginScreen() {
+	@Autowired
+	private AccessControl accessControl;
+
+	public LoginView() {
 	}
 
-//	public LoginScreen(AccessControl accessControl, LoginListener loginListener) {
-//		this.loginListener = loginListener;
-//		this.accessControl = accessControl;
-//		buildUI();
-//		username.focus();
-//	}
+	// public LoginScreen(AccessControl accessControl, LoginListener
+	// loginListener) {
+	// this.loginListener = loginListener;
+	// this.accessControl = accessControl;
+	// buildUI();
+	// username.focus();
+	// }
 
 	@PostConstruct
 	void init() {
@@ -69,10 +73,6 @@ public class LoginScreen extends CssLayout implements View {
 		addComponent(centeringLayout);
 		addComponent(loginInformation);
 		username.focus();
-	}
-
-	private void buildUI() {
-		
 	}
 
 	private Component buildLoginForm() {
@@ -135,14 +135,14 @@ public class LoginScreen extends CssLayout implements View {
 	}
 
 	private void login() {
-//		if (accessControl.signIn(username.getValue(), password.getValue())) {
-//			loginListener.loginSuccessful();
-//		} else {
-//			showNotification(new Notification("Login failed",
-//					"Please check your username and password and try again.",
-//					Notification.Type.HUMANIZED_MESSAGE));
-//			username.focus();
-//		}
+		if (accessControl.signIn(username.getValue(), password.getValue())) {
+			BloodDonationUI.get().showMainView();
+		} else {
+			showNotification(new Notification("Login failed",
+					"Please check your username and password and try again.",
+					Notification.Type.HUMANIZED_MESSAGE));
+			username.focus();
+		}
 	}
 
 	private void showNotification(Notification notification) {
@@ -159,6 +159,5 @@ public class LoginScreen extends CssLayout implements View {
 	@Override
 	public void enter(ViewChangeEvent event) {
 
-		
 	}
 }

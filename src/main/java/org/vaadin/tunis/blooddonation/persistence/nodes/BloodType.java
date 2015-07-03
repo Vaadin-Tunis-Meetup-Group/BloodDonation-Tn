@@ -12,5 +12,14 @@ public enum BloodType {
 	public String getBloodType() {
 		return bloodType;
 	}
+	public BloodType getBloodType(String enumValue){
+		BloodType[] values = values();
+		for(BloodType value:values){
+			if(value.bloodType.equals(enumValue)){
+				return value;
+			}
+		}
+		return null;
+	}
 
 }

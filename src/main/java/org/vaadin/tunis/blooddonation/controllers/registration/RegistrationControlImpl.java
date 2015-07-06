@@ -12,9 +12,13 @@ public class RegistrationControlImpl implements RegistrationControl {
 	UserController userController;
 
 	@Override
-	public boolean isValidUser(User guest) {
-		// TODO Auto-generated method stub
+	public boolean isValidUser(User guest) throws NullPointerException {
+
+		if (userController.getUserByUserName(guest.getUserName()) != null
+				|| userController.getUserByEmail(guest.getEmail()) != null)
+			return false;
 		return true;
+
 	}
 
 	@Override

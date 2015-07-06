@@ -1,6 +1,11 @@
 package org.vaadin.tunis.blooddonation.controllers.authentication;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.vaadin.tunis.blooddonation.caching.ConnectedUsers;
+import org.vaadin.tunis.blooddonation.controllers.UserController;
+import org.vaadin.tunis.blooddonation.persistence.nodes.User;
+import org.vaadin.tunis.blooddonation.security.SecurityUtil;
 import org.vaadin.tunis.blooddonation.ui.authentication.CurrentUser;
 
 /**
@@ -11,18 +16,27 @@ import org.vaadin.tunis.blooddonation.ui.authentication.CurrentUser;
 @Component
 public class BasicAccessControl implements AccessControl {
 
+	@Autowired
+	UserController userController;
+
 	@Override
 	public boolean signIn(String username, String password) {
 		if (username == null || username.isEmpty())
 			return false;
-
-		CurrentUser.set(username);
-		return true;
+		User user = userController.getUserByUserName(username);
+		if (user != null
+				&& SecurityUtil.hashPassword(password).equals(
+						user.getPassword())) {
+			CurrentUser.set(user);
+			ConnectedUsers.INSTANCE.addUser(user);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean isUserSignedIn() {
-		return !CurrentUser.get().isEmpty();
+		return !(CurrentUser.get() == null);
 	}
 
 	@Override
@@ -38,7 +52,7 @@ public class BasicAccessControl implements AccessControl {
 
 	@Override
 	public String getPrincipalName() {
-		return CurrentUser.get();
+		return CurrentUser.get().getUserName();
 	}
 
 }

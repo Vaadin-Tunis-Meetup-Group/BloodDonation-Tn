@@ -2,21 +2,28 @@ package org.vaadin.tunis.blooddonation.persistence.nodes;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.Email;
+import org.neo4j.graphdb.Direction;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.annotation.GraphProperty;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.vaadin.tunis.blooddonation.persistence.mapping.GeoPosition;
 
 @NodeEntity
 public class User extends AbstractEntity implements Serializable {
 
 	@NotNull
-	@Size(min = 2)
+	@Size(min = 2, max = 255)
 	private String fullName;
 
 	@NotNull
-	@Size(min = 5)
+	@Size(min = 5, max = 20)
 	private String userName;
 
 	@NotNull
@@ -24,6 +31,7 @@ public class User extends AbstractEntity implements Serializable {
 	private String password;
 
 	@NotNull
+	@Email
 	private String email;
 
 	@NotNull
@@ -32,18 +40,23 @@ public class User extends AbstractEntity implements Serializable {
 	@NotNull
 	private BloodType bloodType;
 
+	@GraphProperty(defaultValue = "")
 	private String telephone;
 
+	@Size(max = 255)
 	private String address;
 
 	@NotNull
 	private Gender gender;
 
-	public User(String fullName) {
-		this.fullName = fullName;
-	}
+	@RelatedTo(type = "DONTAE_TO", direction = Direction.OUTGOING)
+	Set<User> receivers;
+
+	@Transient
+	private GeoPosition geoPosition;
 
 	public User() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public void setFullName(String fullName) {
@@ -79,7 +92,7 @@ public class User extends AbstractEntity implements Serializable {
 	}
 
 	public void setAddress(String address) {
-		this.address = address;
+		this.address = address != null ? address : "";
 	}
 
 	public String getAddress() {
@@ -116,5 +129,13 @@ public class User extends AbstractEntity implements Serializable {
 
 	public String getPassword() {
 		return password;
+	}
+
+	public GeoPosition getGeoPosition() {
+		return geoPosition;
+	}
+
+	public void setGeoPosition(GeoPosition geoPosition) {
+		this.geoPosition = geoPosition;
 	}
 }

@@ -1,5 +1,7 @@
 package org.vaadin.tunis.blooddonation.ui.registration;
 
+import java.util.Arrays;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +10,14 @@ import org.vaadin.tunis.blooddonation.persistence.nodes.BloodType;
 import org.vaadin.tunis.blooddonation.persistence.nodes.Gender;
 import org.vaadin.tunis.blooddonation.persistence.nodes.User;
 import org.vaadin.tunis.blooddonation.security.SecurityUtil;
+import org.vaadin.tunis.blooddonation.ui.utils.listener.InstallBeanValidatorBlurListener;
+import org.vaadin.tunis.blooddonation.ui.utils.listener.InstallEqualValidatorBlurListener;
 
 import com.vaadin.addon.touchkit.ui.EmailField;
-import com.vaadin.data.Validator;
+import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
+import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -18,6 +25,7 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
@@ -35,7 +43,7 @@ public class SignUpView extends VerticalLayout implements View {
 
 	private ComboBox gender;
 	private TextField fullName;
-	private TextField username;
+	private TextField userName;
 	private EmailField email;
 	private TextField phoneNumber;
 	private DateField birthDate;
@@ -55,13 +63,57 @@ public class SignUpView extends VerticalLayout implements View {
 	void init() {
 		setSizeFull();
 		addStyleName("login-screen");
-		FormLayout loginForm = new FormLayout();
+		FormLayout signUpForm = new FormLayout();
+		signUpForm.addStyleName("login-form");
+		signUpForm.setSizeUndefined();
+		signUpForm.setMargin(false);
 
-		loginForm.addStyleName("login-form");
-		loginForm.setSizeUndefined();
-		loginForm.setMargin(false);
+		buildFieldGroup(signUpForm);
 
-		loginForm.addComponent(gender = new ComboBox("Gender"));
+		VerticalLayout centeringLayout = new VerticalLayout();
+		centeringLayout.setStyleName("centering-layout");
+		centeringLayout.addComponent(signUpForm);
+		centeringLayout.setComponentAlignment(signUpForm,
+				Alignment.MIDDLE_CENTER);
+		addComponent(centeringLayout);
+	}
+
+	private FieldGroup buildFieldGroup(FormLayout signUpLayout) {
+		BeanItem<User> userItem = new BeanItem<User>(new User());
+		FieldGroup group = new FieldGroup(userItem);
+
+		addGenderComboBox(signUpLayout);
+
+		addFullNameField(signUpLayout);
+
+		addBloodTypeComboBox(signUpLayout);
+
+		addEmailField(signUpLayout);
+
+		addPhoneNumberField(signUpLayout);
+
+		addBirthDateField(signUpLayout);
+
+		addAddressField(signUpLayout);
+
+		addUserNameField(signUpLayout);
+
+		addPasswordField(signUpLayout);
+
+		addConfirmPasswordField(signUpLayout);
+
+		bindFields(group);
+
+		addBlurListener();
+
+		addButtons(signUpLayout, group);
+
+		return group;
+
+	}
+
+	private void addGenderComboBox(FormLayout signUpLayout) {
+		signUpLayout.addComponent(gender = new ComboBox("Gender"));
 		gender.setWidth(15, Unit.EM);
 		gender.addItem(Gender.MALE);
 		gender.setItemIcon(Gender.MALE, FontAwesome.MALE);
@@ -69,58 +121,33 @@ public class SignUpView extends VerticalLayout implements View {
 		gender.setItemIcon(Gender.FEMALE, FontAwesome.FEMALE);
 		gender.setNullSelectionAllowed(false);
 		gender.setRequired(true);
+	}
 
-		loginForm.addComponent(fullName = new TextField("FullName", ""));
+	private void addFullNameField(FormLayout signUpLayout) {
+		signUpLayout.addComponent(fullName = new TextField("FullName", ""));
 		fullName.setWidth(15, Unit.EM);
+		fullName.setInputPrompt("Enter your full name...");
+		fullName.setNullRepresentation("");
 		fullName.setRequired(true);
+	}
 
-		loginForm.addComponent(bloodType = new ComboBox("Blood Type"));
-		for (BloodType blood : BloodType.values()) {
-			bloodType.addItem(blood.getBloodType());
-		}
-		bloodType.setWidth(15, Unit.EM);
-		bloodType.setNullSelectionAllowed(false);
-		bloodType.setRequired(true);
-
-		loginForm.addComponent(email = new EmailField("Email", ""));
-		email.setWidth(15, Unit.EM);
-		email.setRequired(true);
-
-		loginForm.addComponent(phoneNumber = new TextField("Phone "));
-		phoneNumber.setWidth(15, Unit.EM);
-
-		loginForm.addComponent(birthDate = new DateField("BirthDate"));
-		birthDate.setWidth(15, Unit.EM);
-		birthDate.setRequired(true);
-
-		loginForm.addComponent(address = new TextArea("Address"));
-		address.setWidth(15, Unit.EM);
-
-		loginForm.addComponent(username = new TextField("Username", ""));
-		username.setWidth(15, Unit.EM);
-		username.setRequired(true);
-
-		loginForm.addComponent(password = new PasswordField("Password"));
-		password.setWidth(15, Unit.EM);
-		password.setRequired(true);
-
-		loginForm.addComponent(confirmPassword = new PasswordField(
-				"Confirm Password"));
-		confirmPassword.setWidth(15, Unit.EM);
-		confirmPassword.addValidator(passwordFieldValidator);
-
-		password.setDescription("Write anything");
+	private void addButtons(FormLayout signUpLayout, FieldGroup group) {
 		CssLayout buttons = new CssLayout();
 		buttons.setStyleName("buttons");
-		loginForm.addComponent(buttons);
-
+		signUpLayout.addComponent(buttons);
 		buttons.addComponent(signUp = new Button("SignUp"));
 		signUp.setDisableOnClick(true);
 		signUp.addClickListener(new Button.ClickListener() {
 			@Override
-			public void buttonClick(Button.ClickEvent event) {
+			public void buttonClick(ClickEvent event) {
 				try {
-					signUp();
+					group.commit();
+					BeanItem<User> itemDataSource = (BeanItem<User>) group
+							.getItemDataSource();
+					User user = itemDataSource.getBean();
+					signUp(user);
+				} catch (CommitException e) {
+					Notification.show("Please check you input");
 				} finally {
 					signUp.setEnabled(true);
 				}
@@ -128,13 +155,100 @@ public class SignUpView extends VerticalLayout implements View {
 		});
 		signUp.setClickShortcut(ShortcutAction.KeyCode.ENTER);
 		signUp.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+	}
 
-		VerticalLayout centeringLayout = new VerticalLayout();
-		centeringLayout.setStyleName("centering-layout");
-		centeringLayout.addComponent(loginForm);
-		centeringLayout.setComponentAlignment(loginForm,
-				Alignment.MIDDLE_CENTER);
-		addComponent(centeringLayout);
+	private void addConfirmPasswordField(FormLayout signUpLayout) {
+		signUpLayout.addComponent(confirmPassword = new PasswordField(
+				"Confirm Password"));
+		confirmPassword.setWidth(15, Unit.EM);
+	}
+
+	private void addPasswordField(FormLayout signUpLayout) {
+		signUpLayout.addComponent(password = new PasswordField("Password"));
+		password.setWidth(15, Unit.EM);
+		password.setNullRepresentation("");
+		password.setRequired(true);
+	}
+
+	private void addUserNameField(FormLayout signUpLayout) {
+		signUpLayout.addComponent(userName = new TextField("Username", ""));
+		userName.setWidth(15, Unit.EM);
+		userName.setNullRepresentation("");
+		userName.setRequired(true);
+	}
+
+	private void addAddressField(FormLayout signUpLayout) {
+		signUpLayout.addComponent(address = new TextArea("Address"));
+		address.setWidth(15, Unit.EM);
+		address.setNullRepresentation("");
+	}
+
+	private void addBirthDateField(FormLayout signUpLayout) {
+		signUpLayout.addComponent(birthDate = new DateField("BirthDate"));
+		birthDate.setWidth(15, Unit.EM);
+		birthDate.setRequired(true);
+	}
+
+	private void addPhoneNumberField(FormLayout signUpLayout) {
+		signUpLayout.addComponent(phoneNumber = new TextField("Phone "));
+		phoneNumber.setWidth(15, Unit.EM);
+		phoneNumber.setNullRepresentation("");
+	}
+
+	private void addEmailField(FormLayout signUpLayout) {
+		signUpLayout.addComponent(email = new EmailField("Email", ""));
+		email.setWidth(15, Unit.EM);
+		email.setNullRepresentation("");
+		email.setRequired(true);
+	}
+
+	private void addBloodTypeComboBox(FormLayout signUpLayout) {
+		signUpLayout.addComponent(bloodType = new ComboBox("Blood Type"));
+		BeanItemContainer<BloodType> bloodTypeContainer = new BeanItemContainer<BloodType>(
+				BloodType.class);
+		bloodTypeContainer.addAll(Arrays.asList(BloodType.values()));
+		bloodType.setContainerDataSource(bloodTypeContainer);
+		bloodType.setItemCaptionPropertyId("bloodType");
+		bloodType.setWidth(15, Unit.EM);
+		bloodType.setNullSelectionAllowed(false);
+		bloodType.setRequired(true);
+	}
+
+	private void bindFields(FieldGroup group) {
+		group.bind(gender, "gender");
+		group.bind(fullName, "fullName");
+		group.bind(bloodType, "bloodType");
+		group.bind(email, "email");
+		group.bind(phoneNumber, "telephone");
+		group.bind(birthDate, "birthDate");
+		group.bind(address, "address");
+
+		group.bind(userName, "userName");
+		group.bind(password, "password");
+
+		group.setBuffered(true);
+	}
+
+	private void addBlurListener() {
+		gender.addBlurListener(new InstallBeanValidatorBlurListener(User.class,
+				gender, "gender"));
+		fullName.addBlurListener(new InstallBeanValidatorBlurListener(
+				User.class, fullName, "fullName"));
+		bloodType.addBlurListener(new InstallBeanValidatorBlurListener(
+				User.class, bloodType, "bloodType"));
+		userName.addBlurListener(new InstallBeanValidatorBlurListener(
+				User.class, userName, "userName"));
+		email.addBlurListener(new InstallBeanValidatorBlurListener(User.class,
+				email, "email"));
+
+		birthDate.addBlurListener(new InstallBeanValidatorBlurListener(
+				User.class, birthDate, "birthDate"));
+
+		password.addBlurListener(new InstallBeanValidatorBlurListener(
+				User.class, password, "password"));
+
+		confirmPassword.addBlurListener(new InstallEqualValidatorBlurListener(
+				confirmPassword, password));
 	}
 
 	@Override
@@ -143,33 +257,19 @@ public class SignUpView extends VerticalLayout implements View {
 
 	}
 
-	private void signUp() {
-		User user = new User();
-		user.setGender((Gender) gender.getValue());
-		user.setFullName(fullName.getValue());
-		user.setBloodType(BloodType.A_NEGATIVE.getBloodType(((String) bloodType
-				.getValue()).toUpperCase()));
-		user.setUserName(username.getValue());
-		user.setEmail(email.getValue());
-		user.setTelephone(phoneNumber.getValue());
-		user.setBirthDate(birthDate.getValue());
-		user.setPassword(SecurityUtil.hashPassword(password.getValue()));
-		if (registrationControl.isValidUser(user)) {
-			registrationControl.registerUser(user);
-		} else {
-			Notification.show("Please check your information");
+	private void signUp(User user) {
+		user.setPassword(SecurityUtil.hashPassword(user.getPassword()));
+		try {
+
+			if (registrationControl.isValidUser(user)) {
+				registrationControl.registerUser(user);
+			} else {
+				Notification.show("Please check your information");
+			}
+		} catch (Exception e) {
+			Notification
+					.show("There is a problem, please check your information");
 		}
 	}
-
-	private Validator passwordFieldValidator = new Validator() {
-
-		@Override
-		public void validate(Object value) throws InvalidValueException {
-			if (!password.getValue().equals(confirmPassword.getValue())) {
-				throw new InvalidValueException(
-						"These passwords don't match. Try again?");
-			}
-		}
-	};
 
 }

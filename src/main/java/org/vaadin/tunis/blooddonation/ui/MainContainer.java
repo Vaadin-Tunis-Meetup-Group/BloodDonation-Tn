@@ -1,20 +1,26 @@
 package org.vaadin.tunis.blooddonation.ui;
 
-import org.vaadin.tunis.blooddonation.ui.about.AboutView;
+import org.vaadin.tunis.blooddonation.persistence.mapping.GeoPosition;
+import org.vaadin.tunis.blooddonation.ui.authentication.CurrentUser;
 import org.vaadin.tunis.blooddonation.ui.users.UsersView;
 
+import com.vaadin.addon.touchkit.extensions.Geolocator;
+import com.vaadin.addon.touchkit.extensions.PositionCallback;
+import com.vaadin.addon.touchkit.gwt.client.vcom.Position;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 /**
  * Content of the UI when the user is logged in.
  * 
  * 
  */
-public class MainContainer extends HorizontalLayout {
+public class MainContainer extends HorizontalLayout implements PositionCallback {
 	private Menu menu;
 
 	public MainContainer(Navigator navigator, CssLayout viewContainer) {
@@ -28,8 +34,9 @@ public class MainContainer extends HorizontalLayout {
 				FontAwesome.MAP_MARKER);
 		menu.addView(new UsersView(), UsersView.VIEW_NAME, UsersView.VIEW_NAME,
 				FontAwesome.USERS);
-		menu.addView(new AboutView(), AboutView.VIEW_NAME, AboutView.VIEW_NAME,
-				FontAwesome.INFO_CIRCLE);
+		// menu.addView(new AboutView(), AboutView.VIEW_NAME,
+		// AboutView.VIEW_NAME,
+		// FontAwesome.INFO_CIRCLE);
 		// menu.addView(new TestUserView(), TestUserView.VIEW_NAME,
 		// TestUserView.VIEW_NAME, FontAwesome.USERS);
 
@@ -56,4 +63,26 @@ public class MainContainer extends HorizontalLayout {
 		}
 
 	};
+
+	@Override
+	public void attach() {
+		super.attach();
+		Geolocator.detect(this);
+
+	};
+
+	@Override
+	public void onSuccess(Position position) {
+		GeoPosition geoPosition = new GeoPosition();
+		geoPosition.setCurrentPosition(position);
+		CurrentUser.get().setGeoPosition(geoPosition);
+	}
+
+	@Override
+	public void onFailure(int errorCode) {
+		Notification
+				.show("Geolocation request failed. You must grant access for geolocation requests.",
+						Type.ERROR_MESSAGE);
+
+	}
 }

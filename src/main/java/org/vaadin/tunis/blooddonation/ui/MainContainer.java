@@ -2,6 +2,7 @@ package org.vaadin.tunis.blooddonation.ui;
 
 import org.vaadin.tunis.blooddonation.persistence.mapping.GeoPosition;
 import org.vaadin.tunis.blooddonation.ui.authentication.CurrentUser;
+import org.vaadin.tunis.blooddonation.ui.dashboard.DashboardView;
 import org.vaadin.tunis.blooddonation.ui.users.UsersView;
 
 import com.vaadin.addon.touchkit.extensions.Geolocator;
@@ -30,6 +31,8 @@ public class MainContainer extends HorizontalLayout implements PositionCallback 
 		menu = new Menu(navigator);
 		// menu.addView(new SampleCrudView(), SampleCrudView.VIEW_NAME,
 		// SampleCrudView.VIEW_NAME, FontAwesome.EDIT);
+		menu.addView(new DashboardView(), DashboardView.VIEW_NAME,
+				DashboardView.VIEW_NAME, FontAwesome.DASHBOARD);
 		menu.addView(new MapView(), MapView.VIEW_NAME, MapView.VIEW_NAME,
 				FontAwesome.MAP_MARKER);
 		menu.addView(new UsersView(), UsersView.VIEW_NAME, UsersView.VIEW_NAME,

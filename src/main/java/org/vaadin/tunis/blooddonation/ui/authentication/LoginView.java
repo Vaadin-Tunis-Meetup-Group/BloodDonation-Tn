@@ -82,7 +82,7 @@ public class LoginView extends CssLayout implements View {
 		loginForm.setSizeUndefined();
 		loginForm.setMargin(false);
 
-		loginForm.addComponent(username = new TextField("Username", "admin"));
+		loginForm.addComponent(username = new TextField("Username"));
 		username.setWidth(15, Unit.EM);
 		loginForm.addComponent(password = new PasswordField("Password"));
 		password.setWidth(15, Unit.EM);

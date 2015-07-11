@@ -10,6 +10,8 @@ import org.vaadin.tunis.blooddonation.persistence.nodes.BloodType;
 import org.vaadin.tunis.blooddonation.persistence.nodes.Gender;
 import org.vaadin.tunis.blooddonation.persistence.nodes.User;
 import org.vaadin.tunis.blooddonation.security.SecurityUtil;
+import org.vaadin.tunis.blooddonation.ui.BloodDonationUI;
+import org.vaadin.tunis.blooddonation.ui.authentication.LoginView;
 import org.vaadin.tunis.blooddonation.ui.utils.listener.InstallBeanValidatorBlurListener;
 import org.vaadin.tunis.blooddonation.ui.utils.listener.InstallEqualValidatorBlurListener;
 
@@ -22,6 +24,8 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Page;
+import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -263,12 +267,23 @@ public class SignUpView extends VerticalLayout implements View {
 
 			if (registrationControl.isValidUser(user)) {
 				registrationControl.registerUser(user);
+				Notification notif = new Notification("SignUp successfully",
+						"You should receive a validation mail in few minutes",
+						Notification.Type.ASSISTIVE_NOTIFICATION);
+
+				notif.setDelayMsec(5000);
+				notif.setPosition(Position.BOTTOM_RIGHT);
+				notif.show(Page.getCurrent());
+				BloodDonationUI.get().getNavigator()
+						.navigateTo(LoginView.VIEW_NAME);
 			} else {
-				Notification.show("Please check your information");
+				Notification.show("Please check your information",
+						Notification.Type.WARNING_MESSAGE);
 			}
 		} catch (Exception e) {
-			Notification
-					.show("There is a problem, please check your information");
+			Notification.show(
+					"There is a problem, please check your information",
+					Notification.Type.ERROR_MESSAGE);
 		}
 	}
 

@@ -69,8 +69,15 @@ public class MapView extends CssLayout implements View {
 	private void addConnectedUsersMarker() {
 		Position currentUserPosition = CurrentUser.get().getGeoPosition()
 				.getCurrentPosition();
+
+		GoogleMapMarker currentUserMarker = new GoogleMapMarker(
+				"Your current Location", new LatLon(
+						currentUserPosition.getLatitude(),
+						currentUserPosition.getLongitude()), false);
+		currentUserMarker.setIconUrl("VAADIN/themes/mytheme/icons/currentUserMarker.png");
 		googleMap.setCenter(new LatLon(currentUserPosition.getLatitude(),
 				currentUserPosition.getLongitude()));
+		googleMap.addMarker(currentUserMarker);
 		Set<User> connectedUsers = ConnectedUsers.INSTANCE.getConnectedUsers();
 		Iterator<User> iterator = connectedUsers.iterator();
 		while (iterator.hasNext()) {
@@ -84,6 +91,7 @@ public class MapView extends CssLayout implements View {
 									.getCurrentPosition().getLatitude(),
 									userGeoPosition.getCurrentPosition()
 											.getLongitude()), false);
+
 					googleMap.addMarker(userMarker);
 
 				}

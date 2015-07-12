@@ -10,6 +10,7 @@ import org.vaadin.tunis.blooddonation.persistence.nodes.BloodType;
 import org.vaadin.tunis.blooddonation.persistence.nodes.Gender;
 import org.vaadin.tunis.blooddonation.persistence.nodes.User;
 import org.vaadin.tunis.blooddonation.security.SecurityUtil;
+import org.vaadin.tunis.blooddonation.service.UserService;
 import org.vaadin.tunis.blooddonation.ui.BloodDonationUI;
 import org.vaadin.tunis.blooddonation.ui.authentication.LoginView;
 import org.vaadin.tunis.blooddonation.ui.utils.listener.InstallBeanValidatorBlurListener;
@@ -59,6 +60,9 @@ public class SignUpView extends VerticalLayout implements View {
 
 	@Autowired
 	private RegistrationControl registrationControl;
+	
+	@Autowired
+	private UserService userService;
 
 	public SignUpView() {
 	}
@@ -266,7 +270,12 @@ public class SignUpView extends VerticalLayout implements View {
 		try {
 
 			if (registrationControl.isValidUser(user)) {
-				registrationControl.registerUser(user);
+				String baseUrl = Page.getCurrent().getLocation().getScheme()
+						+ "://" + Page.getCurrent().getLocation().getHost()
+						+ ":" + Page.getCurrent().getLocation().getPort();
+				//register user & send activation mail
+				userService.registerUser(user, baseUrl);
+				//registrationControl.registerUser(user);
 				Notification notif = new Notification("SignUp successfully",
 						"You should receive a validation mail in few minutes",
 						Notification.Type.ASSISTIVE_NOTIFICATION);
@@ -276,6 +285,7 @@ public class SignUpView extends VerticalLayout implements View {
 				notif.show(Page.getCurrent());
 				BloodDonationUI.get().getNavigator()
 						.navigateTo(LoginView.VIEW_NAME);
+				
 			} else {
 				Notification.show("Please check your information",
 						Notification.Type.WARNING_MESSAGE);

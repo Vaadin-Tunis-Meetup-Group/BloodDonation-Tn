@@ -2,7 +2,6 @@ package org.vaadin.tunis.blooddonation.ui.users.components;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Locale;
 
 import org.vaadin.tunis.blooddonation.persistence.nodes.BloodType;
@@ -10,7 +9,6 @@ import org.vaadin.tunis.blooddonation.persistence.nodes.Gender;
 import org.vaadin.tunis.blooddonation.persistence.nodes.User;
 
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.converter.StringToDateConverter;
 import com.vaadin.data.util.converter.StringToEnumConverter;
 import com.vaadin.data.util.filter.Or;
 import com.vaadin.data.util.filter.SimpleStringFilter;
@@ -30,6 +28,8 @@ public class UsersGrid extends Grid {
 				User.class);
 		container.removeContainerProperty("password");
 		container.removeContainerProperty("id");
+		container.removeContainerProperty("geoPosition");
+		container.removeContainerProperty("activationKey");
 		setContainerDataSource(container);
 
 		setColumnOrder("fullName", "bloodType", "gender", "email", "telephone",

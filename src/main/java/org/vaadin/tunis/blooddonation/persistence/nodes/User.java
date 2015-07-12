@@ -54,6 +54,11 @@ public class User extends AbstractEntity implements Serializable {
 
 	@Transient
 	private GeoPosition geoPosition;
+	
+	 private boolean activated = false;
+	 
+	 @Size(min = 0, max = 20)
+	 private String activationKey;
 
 	public User() {
 		// TODO Auto-generated constructor stub
@@ -138,4 +143,22 @@ public class User extends AbstractEntity implements Serializable {
 	public void setGeoPosition(GeoPosition geoPosition) {
 		this.geoPosition = geoPosition;
 	}
+
+	public boolean isActivated() {
+		return activated;
+	}
+
+	public void setActivated(boolean activated) {
+		this.activated = activated;
+	}
+
+	public String getActivationKey() {
+		return activationKey;
+	}
+
+	public void setActivationKey(String activationKey) {
+		this.activationKey = activationKey;
+	}
+	
+	
 }

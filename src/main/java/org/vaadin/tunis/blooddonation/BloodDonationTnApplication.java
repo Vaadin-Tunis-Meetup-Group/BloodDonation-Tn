@@ -19,7 +19,7 @@ public class BloodDonationTnApplication {
 	@EnableTransactionManagement
 	@EnableNeo4jRepositories(basePackages = "org.vaadin.tunis.blooddonation.persistence.repository")
 	static class ApplicationConfig extends Neo4jConfiguration {
-
+				
 		public ApplicationConfig() {
 			setBasePackage("org.vaadin.tunis.blooddonation.persistence");
 		}
